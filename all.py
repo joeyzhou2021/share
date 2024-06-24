@@ -34,3 +34,12 @@ for metric, value in metrics.items():
 # Optionally, display the metrics in a DataFrame for better readability
 metrics_df = pd.DataFrame([metrics], columns=metrics.keys())
 import ace_tools as tools; tools.display_dataframe_to_user(name="Classification Metrics", dataframe=metrics_df)
+
+
+class_distribution = true_outcomes.value_counts()
+print(class_distribution)
+
+# Optionally, calculate the percentage of each class
+class_distribution_percentage = true_outcomes.value_counts(normalize=True) * 100
+print(class_distribution_percentage)
+
