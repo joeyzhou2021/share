@@ -75,7 +75,7 @@ def load_pkl(pkl_file):
     with open(pkl_file, 'rb') as f:
         return pickle.load(f)
 
-def reorder_dataframe(csv_file, pkl_file):
+def filter_and_reorder_dataframe(csv_file, pkl_file):
     # Load the CSV file
     df = pd.read_csv(csv_file)
     
@@ -87,17 +87,26 @@ def reorder_dataframe(csv_file, pkl_file):
     if isinstance(pkl_data, pd.DataFrame):
         pkl_data = pkl_data.iloc[:, 0]  # Take the first column
     
+    # Convert pkl_data to a set for faster lookup
+    pkl_set = set(pkl_data)
+    
+    # Filter the DataFrame to keep only rows with BCS-codes in the PKL file
+    df_filtered = df[df['BCS-code'].isin(pkl_set)]
+    
     # Create a dictionary for quick lookup of indices
     index_map = {code: i for i, code in enumerate(pkl_data)}
     
     # Create a new column with the desired order
-    df['new_order'] = df['BCS-code'].map(index_map)
+    df_filtered['new_order'] = df_filtered['BCS-code'].map(index_map)
     
     # Sort the DataFrame based on the new order
-    df_sorted = df.sort_values('new_order')
+    df_sorted = df_filtered.sort_values('new_order')
     
     # Drop the temporary column
     df_final = df_sorted.drop('new_order', axis=1)
+    
+    # Reset the index
+    df_final = df_final.reset_index(drop=True)
     
     return df_final
 
@@ -105,15 +114,16 @@ def reorder_dataframe(csv_file, pkl_file):
 csv_file = 'input.csv'
 pkl_file = 'order.pkl'
 
-# Get the reordered DataFrame
-reordered_df = reorder_dataframe(csv_file, pkl_file)
+# Get the filtered and reordered DataFrame
+filtered_reordered_df = filter_and_reorder_dataframe(csv_file, pkl_file)
 
-# Now you can use reordered_df for further processing
+# Now you can use filtered_reordered_df for further processing
 # For example:
-print(reordered_df.head())
+print(f"Number of rows in the resulting DataFrame: {len(filtered_reordered_df)}")
+print(filtered_reordered_df.head())
 
-# You can perform more operations on reordered_df as needed
+# You can perform more operations on filtered_reordered_df as needed
 # For instance:
-# some_result = perform_some_analysis(reordered_df)
-# visualize_data(reordered_df)
+# some_result = perform_some_analysis(filtered_reordered_df)
+# visualize_data(filtered_reordered_df)
 # etc.
