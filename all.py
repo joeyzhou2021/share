@@ -66,3 +66,50 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+import pandas as pd
+import pickle
+
+def load_pkl(pkl_file):
+    with open(pkl_file, 'rb') as f:
+        return pickle.load(f)
+
+def reorder_csv(csv_file, pkl_file, output_file):
+    # Load the CSV file
+    df = pd.read_csv(csv_file)
+    
+    # Load the PKL file
+    pkl_data = load_pkl(pkl_file)
+    
+    # Assuming the PKL file contains a pandas Series or a list
+    # If it's a DataFrame, you might need to extract the relevant column
+    if isinstance(pkl_data, pd.DataFrame):
+        pkl_data = pkl_data.iloc[:, 0]  # Take the first column
+    
+    # Create a dictionary for quick lookup of indices
+    index_map = {code: i for i, code in enumerate(pkl_data)}
+    
+    # Create a new column with the desired order
+    df['new_order'] = df['BCS-code'].map(index_map)
+    
+    # Sort the DataFrame based on the new order
+    df_sorted = df.sort_values('new_order')
+    
+    # Drop the temporary column
+    df_sorted = df_sorted.drop('new_order', axis=1)
+    
+    # Select only the desired columns
+    df_final = df_sorted[['BCS-code', 'measured outcome', 'predicted outcome']]
+    
+    # Save the reordered DataFrame to a new CSV file
+    df_final.to_csv(output_file, index=False)
+    
+    print(f"Reordered CSV saved to {output_file}")
+
+# Example usage
+csv_file = 'input.csv'
+pkl_file = 'order.pkl'
+output_file = 'output_reordered.csv'
+
+reorder_csv(csv_file, pkl_file, output_file)
