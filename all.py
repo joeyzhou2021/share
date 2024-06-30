@@ -97,10 +97,7 @@ def reorder_csv(csv_file, pkl_file, output_file):
     df_sorted = df.sort_values('new_order')
     
     # Drop the temporary column
-    df_sorted = df_sorted.drop('new_order', axis=1)
-    
-    # Select only the desired columns
-    df_final = df_sorted[['BCS-code', 'measured outcome', 'predicted outcome']]
+    df_final = df_sorted.drop('new_order', axis=1)
     
     # Save the reordered DataFrame to a new CSV file
     df_final.to_csv(output_file, index=False)
