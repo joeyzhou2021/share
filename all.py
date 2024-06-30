@@ -82,3 +82,76 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+import pandas as pd
+import numpy as np
+from sklearn.manifold import TSNE
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def load_data(x_file, y_file):
+    X = pd.read_csv(x_file)
+    y = pd.read_csv(y_file)
+    return X, y
+
+def preprocess_data(X):
+    # Standardize all features
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+    return X_scaled
+
+def perform_tsne(X_scaled):
+    tsne = TSNE(n_components=2, random_state=42)
+    X_tsne = tsne.fit_transform(X_scaled)
+    return X_tsne
+
+def get_prediction_categories(y_true, y_pred):
+    categories = []
+    for true, pred in zip(y_true, y_pred):
+        if true == 1 and pred == 1:
+            categories.append('True Positive')
+        elif true == 0 and pred == 0:
+            categories.append('True Negative')
+        elif true == 0 and pred == 1:
+            categories.append('False Positive')
+        else:
+            categories.append('False Negative')
+    return categories
+
+def plot_tsne(X_tsne, categories):
+    plt.figure(figsize=(12, 8))
+    sns.scatterplot(x=X_tsne[:, 0], y=X_tsne[:, 1], hue=categories, palette='deep')
+    plt.title('t-SNE Plot of All Features')
+    plt.xlabel('t-SNE 1')
+    plt.ylabel('t-SNE 2')
+    plt.legend(title='Prediction Category', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.show()
+
+def main():
+    x_file = 'aromatase_inhibitor_model_X.csv'
+    y_file = 'aromatase_inhibitor_model_y.csv'
+
+    # Load data
+    X, y = load_data(x_file, y_file)
+
+    # Preprocess data
+    X_scaled = preprocess_data(X)
+    print(f"Total number of features used: {X.shape[1]}")
+
+    # Perform t-SNE
+    X_tsne = perform_tsne(X_scaled)
+
+    # Get prediction categories
+    y_true = y['measured outcome']
+    y_pred = y['predicted outcome']
+    categories = get_prediction_categories(y_true, y_pred)
+
+    # Plot t-SNE
+    plot_tsne(X_tsne, categories)
+
+if __name__ == "__main__":
+    main()
