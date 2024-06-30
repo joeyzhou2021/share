@@ -75,7 +75,7 @@ def load_pkl(pkl_file):
     with open(pkl_file, 'rb') as f:
         return pickle.load(f)
 
-def reorder_csv(csv_file, pkl_file, output_file):
+def reorder_dataframe(csv_file, pkl_file):
     # Load the CSV file
     df = pd.read_csv(csv_file)
     
@@ -99,14 +99,21 @@ def reorder_csv(csv_file, pkl_file, output_file):
     # Drop the temporary column
     df_final = df_sorted.drop('new_order', axis=1)
     
-    # Save the reordered DataFrame to a new CSV file
-    df_final.to_csv(output_file, index=False)
-    
-    print(f"Reordered CSV saved to {output_file}")
+    return df_final
 
 # Example usage
 csv_file = 'input.csv'
 pkl_file = 'order.pkl'
-output_file = 'output_reordered.csv'
 
-reorder_csv(csv_file, pkl_file, output_file)
+# Get the reordered DataFrame
+reordered_df = reorder_dataframe(csv_file, pkl_file)
+
+# Now you can use reordered_df for further processing
+# For example:
+print(reordered_df.head())
+
+# You can perform more operations on reordered_df as needed
+# For instance:
+# some_result = perform_some_analysis(reordered_df)
+# visualize_data(reordered_df)
+# etc.
