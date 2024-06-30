@@ -155,3 +155,26 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def get_false_predictions(y_true, y_pred):
+    categories = []
+    indices = []
+    for i, (true, pred) in enumerate(zip(y_true, y_pred)):
+        if true == 0 and pred == 1:
+            categories.append('False Positive')
+            indices.append(i)
+        elif true == 1 and pred == 0:
+            categories.append('False Negative')
+            indices.append(i)
+    return categories, indices
+
+def plot_tsne(X_tsne, categories):
+    plt.figure(figsize=(12, 8))
+    sns.scatterplot(x=X_tsne[:, 0], y=X_tsne[:, 1], hue=categories, palette='Set1')
+    plt.title('t-SNE Plot of False Predictions')
+    plt.xlabel('t-SNE 1')
+    plt.ylabel('t-SNE 2')
+    plt.legend(title='Prediction Category', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.show()
