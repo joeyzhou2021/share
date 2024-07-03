@@ -350,3 +350,54 @@ print(combined_df[combined_df['df1_column'] == combined_df['df2_column']].head()
 
 print("\nSample of non-matching rows:")
 print(combined_df[combined_df['df1_column'] != combined_df['df2_column']].head())
+
+--------------------------------------
+import pandas as pd
+
+# Load the DataFrames
+df1 = pd.read_pickle('file1.pkl')
+df2 = pd.read_pickle('file2.pkl')
+
+# Specify the columns to compare
+column1 = 'column1'  # Replace with the actual column name from df1
+column2 = 'column2'  # Replace with the actual column name from df2
+
+# Count missing values
+missing_df1 = df1[column1].isna().sum()
+missing_df2 = df2[column2].isna().sum()
+
+print(f"Missing values in df1[{column1}]: {missing_df1}")
+print(f"Missing values in df2[{column2}]: {missing_df2}")
+
+# Remove missing values for comparison
+values1 = df1[column1].dropna().values
+values2 = df2[column2].dropna().values
+
+# Convert to sets for unordered comparison
+set1 = set(values1)
+set2 = set(values2)
+
+# Find common values
+common_values = set1.intersection(set2)
+
+# Calculate statistics
+total_unique_values = len(set1.union(set2))
+matching_values = len(common_values)
+matching_percentage = (matching_values / total_unique_values) * 100 if total_unique_values > 0 else 0
+
+# Print results
+print(f"\nUnique values in df1[{column1}]: {len(set1)}")
+print(f"Unique values in df2[{column2}]: {len(set2)}")
+print(f"Matching unique values: {matching_values}")
+print(f"Total unique values across both columns: {total_unique_values}")
+print(f"Matching percentage: {matching_percentage:.2f}%")
+
+# Optional: Display some of the matching and non-matching values
+print("\nSample of matching values:")
+print(list(common_values)[:5])  # Show first 5 matching values
+
+print("\nSample of values in df1 but not in df2:")
+print(list(set1 - set2)[:5])  # Show first 5 values unique to df1
+
+print("\nSample of values in df2 but not in df1:")
+print(list(set2 - set1)[:5])  # Show first 5 values unique to df2
