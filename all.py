@@ -227,14 +227,12 @@ def filter_split_and_reorder_dataframe(csv_file, pkl_file):
     
     return df_in_pkl_final, df_not_in_pkl
 
-# Example usage
 csv_file = 'input.csv'
 pkl_file = 'order.pkl'
 
 # Get the filtered, split, and reordered DataFrames
 df_in_pkl, df_not_in_pkl = filter_split_and_reorder_dataframe(csv_file, pkl_file)
 
-# Now you can use both dataframes for further processing
 print(f"Number of rows in DataFrame with BCS-codes in PKL: {len(df_in_pkl)}")
 print(f"Number of rows in DataFrame with BCS-codes NOT in PKL: {len(df_not_in_pkl)}")
 
@@ -243,11 +241,27 @@ print(df_in_pkl.head())
 
 print("\nFirst few rows of DataFrame with BCS-codes NOT in PKL:")
 print(df_not_in_pkl.head())
+--------------
 
-# You can perform more operations on both dataframes as needed
-# For instance:
-# some_result_1 = perform_some_analysis(df_in_pkl)
-# some_result_2 = perform_some_analysis(df_not_in_pkl)
-# visualize_data(df_in_pkl)
-# visualize_data(df_not_in_pkl)
-# etc.
+import pandas as pd
+
+# Load the pickle files
+file1_path = 'path_to_file1.pkl'
+file2_path = 'path_to_file2.pkl'
+
+df1 = pd.read_pickle(file1_path)
+df2 = pd.read_pickle(file2_path)
+
+# Ensure both DataFrames have the same columns in the same order
+df1 = df1.sort_index(axis=1)
+df2 = df2.sort_index(axis=1)
+
+# Find common rows
+common_rows = pd.merge(df1, df2, how='inner')
+
+# Display the number of common rows
+print(f"Number of common rows: {len(common_rows)}")
+
+# display the common rows
+# print(common_rows)
+
