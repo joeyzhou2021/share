@@ -312,3 +312,41 @@ df = pd.DataFrame(data)
 # Display the DataFrame
 print(df)
 
+------
+import pandas as pd
+
+# Load the DataFrames
+df1 = pd.read_pickle('file1.pkl')
+df2 = pd.read_pickle('file2.pkl')
+
+# Specify the columns to compare
+column1 = 'column1'  # Replace with the actual column name from df1
+column2 = 'column2'  # Replace with the actual column name from df2
+
+# Combine the specified columns from both DataFrames
+combined_df = pd.DataFrame({
+    'df1_column': df1[column1],
+    'df2_column': df2[column2]
+})
+
+# Remove rows where either column has a missing value
+combined_df = combined_df.dropna()
+
+# Count matching rows
+matching_rows = (combined_df['df1_column'] == combined_df['df2_column']).sum()
+
+# Calculate total rows and percentage
+total_rows = len(combined_df)
+matching_percentage = (matching_rows / total_rows) * 100 if total_rows > 0 else 0
+
+# Print results
+print(f"Matching rows: {matching_rows}")
+print(f"Total rows compared: {total_rows}")
+print(f"Matching percentage: {matching_percentage:.2f}%")
+
+# Optional: Display the first few matching and non-matching rows
+print("\nSample of matching rows:")
+print(combined_df[combined_df['df1_column'] == combined_df['df2_column']].head())
+
+print("\nSample of non-matching rows:")
+print(combined_df[combined_df['df1_column'] != combined_df['df2_column']].head())
