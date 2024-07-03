@@ -265,3 +265,25 @@ print(f"Number of common rows: {len(common_rows)}")
 # display the common rows
 # print(common_rows)
 
+
+---------
+import pandas as pd
+
+# Load the pickle files
+df1 = pd.read_pickle('file1.pkl')
+df2 = pd.read_pickle('file2.pkl')
+
+# Ensure both dataframes have the same columns
+common_columns = df1.columns.intersection(df2.columns)
+df1 = df1[common_columns]
+df2 = df2[common_columns]
+
+# Compare the dataframes
+same_data = (df1 == df2).all(axis=1)
+
+# Count the number of rows with the same data
+num_same_rows = same_data.sum()
+
+print(f"Number of rows with the same data: {num_same_rows}")
+print(f"Total number of rows: {len(df1)}")
+print(f"Percentage of matching rows: {(num_same_rows / len(df1)) * 100:.2f}%")
