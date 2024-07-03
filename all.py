@@ -178,3 +178,76 @@ def plot_tsne(X_tsne, categories):
     plt.legend(title='Prediction Category', bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
     plt.show()
+
+
+-----
+import pandas as pd
+import pickle
+
+def load_pkl(pkl_file):
+    with open(pkl_file, 'rb') as f:
+        return pickle.load(f)
+
+def filter_split_and_reorder_dataframe(csv_file, pkl_file):
+    # Load the CSV file
+    df = pd.read_csv(csv_file)
+    
+    # Load the PKL file
+    pkl_data = load_pkl(pkl_file)
+    
+    # Assuming the PKL file contains a pandas Series or a list
+    # If it's a DataFrame, you might need to extract the relevant column
+    if isinstance(pkl_data, pd.DataFrame):
+        pkl_data = pkl_data.iloc[:, 0]  # Take the first column
+    
+    # Convert pkl_data to a set for faster lookup
+    pkl_set = set(pkl_data)
+    
+    # Filter the DataFrame to keep only rows with BCS-codes in the PKL file
+    df_in_pkl = df[df['BCS-code'].isin(pkl_set)].copy()
+    
+    # Filter the DataFrame to keep only rows with BCS-codes NOT in the PKL file
+    df_not_in_pkl = df[~df['BCS-code'].isin(pkl_set)].copy()
+    
+    # Create a dictionary for quick lookup of indices
+    index_map = {code: i for i, code in enumerate(pkl_data)}
+    
+    # Create a new column with the desired order for df_in_pkl
+    df_in_pkl.loc[:, 'new_order'] = df_in_pkl['BCS-code'].map(index_map)
+    
+    # Sort the DataFrame based on the new order
+    df_in_pkl_sorted = df_in_pkl.sort_values('new_order')
+    
+    # Drop the temporary column
+    df_in_pkl_final = df_in_pkl_sorted.drop('new_order', axis=1)
+    
+    # Reset the index for both dataframes
+    df_in_pkl_final = df_in_pkl_final.reset_index(drop=True)
+    df_not_in_pkl = df_not_in_pkl.reset_index(drop=True)
+    
+    return df_in_pkl_final, df_not_in_pkl
+
+# Example usage
+csv_file = 'input.csv'
+pkl_file = 'order.pkl'
+
+# Get the filtered, split, and reordered DataFrames
+df_in_pkl, df_not_in_pkl = filter_split_and_reorder_dataframe(csv_file, pkl_file)
+
+# Now you can use both dataframes for further processing
+print(f"Number of rows in DataFrame with BCS-codes in PKL: {len(df_in_pkl)}")
+print(f"Number of rows in DataFrame with BCS-codes NOT in PKL: {len(df_not_in_pkl)}")
+
+print("\nFirst few rows of DataFrame with BCS-codes in PKL:")
+print(df_in_pkl.head())
+
+print("\nFirst few rows of DataFrame with BCS-codes NOT in PKL:")
+print(df_not_in_pkl.head())
+
+# You can perform more operations on both dataframes as needed
+# For instance:
+# some_result_1 = perform_some_analysis(df_in_pkl)
+# some_result_2 = perform_some_analysis(df_not_in_pkl)
+# visualize_data(df_in_pkl)
+# visualize_data(df_not_in_pkl)
+# etc.
