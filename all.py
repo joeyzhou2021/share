@@ -287,3 +287,28 @@ num_same_rows = same_data.sum()
 print(f"Number of rows with the same data: {num_same_rows}")
 print(f"Total number of rows: {len(df1)}")
 print(f"Percentage of matching rows: {(num_same_rows / len(df1)) * 100:.2f}%")
+
+
+---------------
+from rdkit import Chem
+import pandas as pd
+
+# Define the path to your SDF file
+sdf_file_path = 'path_to_your_file.sdf'
+
+# Read the SDF file
+supplier = Chem.SDMolSupplier(sdf_file_path)
+
+# Extract data from SDF
+data = []
+for mol in supplier:
+    if mol is not None:
+        props = mol.GetPropsAsDict()
+        data.append(props)
+
+# Convert to DataFrame
+df = pd.DataFrame(data)
+
+# Display the DataFrame
+print(df)
+
