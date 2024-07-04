@@ -468,3 +468,54 @@ for metric in pyridine_metrics.keys():
     if metric != 'confusion_matrix':
         diff = calculate_percentage_difference(pyridine_metrics[metric], non_pyridine_metrics[metric])
         print(f"{metric}: {diff:.2f}%")
+
+
+-----
+import pandas as pd
+import numpy as np
+from sklearn.metrics import accuracy_score, precision_score, recall_score, fbeta_score, roc_auc_score, confusion_matrix
+
+# Assuming df1 and df2 are already loaded
+# Merge the dataframes (replace 'common_id' with the actual common identifier column)
+merged_df = pd.merge(df1, df2, on='common_id')
+
+# Function to calculate all metrics
+def calculate_metrics(y_true, y_pred):
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred, average='macro')
+    recall = recall_score(y_true, y_pred, average='macro')
+    f05_score = fbeta_score(y_true, y_pred, beta=0.5, average='macro')
+    roc_auc = roc_auc_score(y_true, y_pred)
+    conf_matrix = confusion_matrix(y_true, y_pred)
+    
+    return {
+        'accuracy': accuracy,
+        'precision': precision,
+        'recall': recall,
+        'F0.5_score': f05_score,
+        'ROC_AUC': roc_auc,
+        'confusion_matrix': conf_matrix
+    }
+
+# Split data into pyridine and non-pyridine groups
+pyridine_df = merged_df[merged_df['fingerprintecfp'] == 1]
+non_pyridine_df = merged_df[merged_df['fingerprintecfp'] == 0]
+
+# Calculate metrics for each group
+pyridine_metrics = calculate_metrics(pyridine_df['measured_outcome'], pyridine_df['predicted_outcome'])
+non_pyridine_metrics = calculate_metrics(non_pyridine_df['measured_outcome'], non_pyridine_df['predicted_outcome'])
+
+# Print results
+print("Metrics for molecules with pyridine:")
+for metric, value in pyridine_metrics.items():
+    if metric != 'confusion_matrix':
+        print(f"{metric}: {value:.4f}")
+    else:
+        print(f"{metric}:\n{value}")
+
+print("\nMetrics for molecules without pyridine:")
+for metric, value in non_pyridine_metrics.items():
+    if metric != 'confusion_matrix':
+        print(f"{metric}: {value:.4f}")
+    else:
+        print(f"{metric}:\n{value}")
